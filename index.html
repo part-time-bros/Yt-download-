@@ -36,43 +36,29 @@
 
     .container { width: 100%; max-width: 440px; }
 
-    /* Header */
     .header { margin-bottom: 40px; }
     .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
     .logo-icon {
-      width: 32px; height: 32px;
-      background: #ff0000;
-      border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px; background: #ff0000;
+      border-radius: 8px; display: flex; align-items: center; justify-content: center;
     }
     .logo-text { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
     .subtitle { color: var(--text-dim); font-size: 13px; }
 
-    /* Fields */
     .field { margin-bottom: 16px; }
     .label {
-      display: block;
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--text-muted);
-      font-weight: 600;
-      margin-bottom: 8px;
+      display: block; font-size: 10px; text-transform: uppercase;
+      letter-spacing: 0.12em; color: var(--text-muted);
+      font-weight: 600; margin-bottom: 8px;
     }
 
-    /* Input */
     .input-wrap { position: relative; }
     input[type="text"] {
-      width: 100%;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px 40px 12px 16px;
-      font-size: 13px;
-      color: var(--text);
-      outline: none;
-      transition: border-color 0.15s;
-      font-family: inherit;
+      width: 100%; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 12px;
+      padding: 12px 40px 12px 16px; font-size: 13px;
+      color: var(--text); outline: none;
+      transition: border-color 0.15s; font-family: inherit;
     }
     input[type="text"]::placeholder { color: #3a3a3a; }
     input[type="text"]:focus { border-color: var(--border-hover); }
@@ -83,41 +69,28 @@
     }
     .clear-btn:hover { color: #888; }
 
-    /* Quality grid */
     .quality-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
     .quality-btn {
-      padding: 9px 4px;
-      border-radius: 10px;
+      padding: 9px 4px; border-radius: 10px;
       font-size: 11px; font-weight: 600;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: all 0.15s;
-      font-family: inherit;
+      border: 1px solid var(--border); background: var(--surface);
+      color: var(--text-muted); cursor: pointer;
+      transition: all 0.15s; font-family: inherit;
     }
     .quality-btn:hover { border-color: var(--border-hover); color: var(--text); }
     .quality-btn.active { background: #fff; color: #000; border-color: transparent; }
 
-    /* CTA */
     .cta {
-      width: 100%; margin-top: 24px;
-      padding: 14px; border-radius: 12px;
-      font-size: 14px; font-weight: 600;
-      border: none; cursor: pointer;
-      background: #fff; color: #000;
-      transition: background 0.15s;
+      width: 100%; margin-top: 24px; padding: 14px; border-radius: 12px;
+      font-size: 14px; font-weight: 600; border: none; cursor: pointer;
+      background: #fff; color: #000; transition: background 0.15s;
       display: flex; align-items: center; justify-content: center; gap: 8px;
       font-family: inherit;
     }
     .cta:hover { background: #e8e8e8; }
     .cta:disabled { background: #1a1a1a; color: #3a3a3a; cursor: not-allowed; }
 
-    /* Status */
-    .status-card {
-      margin-top: 16px; border-radius: 12px;
-      padding: 16px; display: none;
-    }
+    .status-card { margin-top: 16px; border-radius: 12px; padding: 16px; display: none; }
     .status-card.visible { display: block; }
     .status-card.success { background: var(--success-bg); border: 1px solid var(--success-border); }
     .status-card.error { background: var(--error-bg); border: 1px solid var(--error-border); }
@@ -127,13 +100,18 @@
     .status-filename { font-size: 11px; color: var(--text-dim); word-break: break-all; }
     .download-btn {
       display: block; width: 100%; text-align: center;
-      margin-top: 12px; padding: 11px;
-      background: #16a34a; color: #fff;
+      margin-top: 12px; padding: 11px; background: #16a34a; color: #fff;
       text-decoration: none; border-radius: 9px;
-      font-size: 13px; font-weight: 600;
-      transition: background 0.15s;
+      font-size: 13px; font-weight: 600; transition: background 0.15s;
     }
     .download-btn:hover { background: #15803d; }
+    .download-btn.secondary {
+      background: #1d4ed8;
+    }
+    .download-btn.secondary:hover { background: #1e40af; }
+    .dual-note {
+      font-size: 11px; color: #555; margin-top: 8px; line-height: 1.5;
+    }
     .retry-btn {
       margin-top: 10px; background: none; border: none;
       font-size: 11px; color: #555; cursor: pointer;
@@ -141,18 +119,14 @@
     }
     .retry-btn:hover { color: #888; }
 
-    /* Footer */
     .footer { margin-top: 32px; text-align: center; font-size: 11px; color: #2a2a2a; }
     .footer a { color: #444; text-decoration: none; transition: color 0.15s; }
     .footer a:hover { color: #777; }
 
-    /* Spinner */
     .spinner {
       width: 14px; height: 14px;
       border: 2px solid #444; border-top-color: #000;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      display: inline-block;
+      border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
   </style>
@@ -163,9 +137,7 @@
     <div class="header">
       <div class="logo">
         <div class="logo-icon">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="white">
-            <path d="M8 5v14l11-7z"/>
-          </svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
         </div>
         <span class="logo-text">YT Clipper</span>
       </div>
@@ -183,13 +155,13 @@
     <div class="field">
       <label class="label">Quality</label>
       <div class="quality-grid" id="qualityGrid">
-        <button class="quality-btn active" data-value="max">Best</button>
-        <button class="quality-btn" data-value="2160">4K</button>
-        <button class="quality-btn" data-value="1440">1440p</button>
+        <button class="quality-btn active" data-value="720">720p</button>
         <button class="quality-btn" data-value="1080">1080p</button>
-        <button class="quality-btn" data-value="720">720p</button>
         <button class="quality-btn" data-value="480">480p</button>
         <button class="quality-btn" data-value="360">360p</button>
+        <button class="quality-btn" data-value="max">Best</button>
+        <button class="quality-btn" data-value="2160">4K</button>
+        <button class="quality-btn" data-value="1440">1440p</button>
         <button class="quality-btn" data-value="audio">MP3</button>
       </div>
     </div>
@@ -202,6 +174,9 @@
       <p class="status-msg" id="statusMsg"></p>
       <p class="status-filename" id="statusFilename"></p>
       <a class="download-btn" id="downloadBtn" href="#" target="_blank" rel="noopener noreferrer" style="display:none">↓ Download</a>
+      <a class="download-btn" id="videoTrackBtn" href="#" target="_blank" rel="noopener noreferrer" style="display:none">↓ Video Track</a>
+      <a class="download-btn secondary" id="audioTrackBtn" href="#" target="_blank" rel="noopener noreferrer" style="display:none">↓ Audio Track</a>
+      <p class="dual-note" id="dualNote" style="display:none">Import both into your editor — they'll sync automatically.</p>
       <button class="retry-btn" onclick="clearAll()">Try another link</button>
     </div>
 
@@ -209,15 +184,18 @@
   </div>
 
   <script>
-    let quality = 'max';
+    let quality = '720';
 
-    const urlInput  = document.getElementById('urlInput');
-    const clearBtn  = document.getElementById('clearBtn');
-    const ctaBtn    = document.getElementById('ctaBtn');
-    const statusCard= document.getElementById('statusCard');
-    const statusMsg = document.getElementById('statusMsg');
-    const statusFile= document.getElementById('statusFilename');
-    const dlBtn     = document.getElementById('downloadBtn');
+    const urlInput   = document.getElementById('urlInput');
+    const clearBtn   = document.getElementById('clearBtn');
+    const ctaBtn     = document.getElementById('ctaBtn');
+    const statusCard = document.getElementById('statusCard');
+    const statusMsg  = document.getElementById('statusMsg');
+    const statusFile = document.getElementById('statusFilename');
+    const dlBtn      = document.getElementById('downloadBtn');
+    const vidBtn     = document.getElementById('videoTrackBtn');
+    const audBtn     = document.getElementById('audioTrackBtn');
+    const dualNote   = document.getElementById('dualNote');
 
     urlInput.addEventListener('input', () => {
       const has = urlInput.value.trim().length > 0;
@@ -242,6 +220,7 @@
       clearBtn.style.display = 'none';
       ctaBtn.disabled = true;
       statusCard.className = 'status-card';
+      [dlBtn, vidBtn, audBtn, dualNote].forEach(el => el.style.display = 'none');
       urlInput.focus();
     }
 
@@ -250,13 +229,23 @@
       statusMsg.textContent = (type === 'success' ? '✓ ' : '✗ ') + msg;
       statusFile.textContent = filename || '';
       statusFile.style.display = filename ? 'block' : 'none';
+      [dlBtn, vidBtn, audBtn, dualNote].forEach(el => el.style.display = 'none');
       if (dlUrl) {
         dlBtn.href = dlUrl;
         dlBtn.textContent = `↓ Download ${dlLabel}`;
         dlBtn.style.display = 'block';
-      } else {
-        dlBtn.style.display = 'none';
       }
+    }
+
+    function showDualDownload(videoUrl, audioUrl, filename) {
+      statusCard.className = 'status-card visible success';
+      statusMsg.textContent = '✓ Two tracks ready — download both.';
+      statusFile.textContent = filename || '';
+      statusFile.style.display = filename ? 'block' : 'none';
+      dlBtn.style.display = 'none';
+      if (videoUrl) { vidBtn.href = videoUrl; vidBtn.style.display = 'block'; }
+      if (audioUrl) { audBtn.href = audioUrl; audBtn.style.display = 'block'; }
+      dualNote.style.display = 'block';
     }
 
     async function handleFetch() {
@@ -276,13 +265,16 @@
 
         const data = await res.json();
 
-        if (!res.ok || data.error) throw new Error(data.error || `HTTP ${res.status}`);
-        if (data.status === 'error') throw new Error(data.error?.code || 'Cobalt returned an error.');
+        if (!res.ok) throw new Error(data.error || `Server error ${res.status}`);
+        if (data.error) throw new Error(data.error);
+        if (data.status === 'error') throw new Error(data.error?.code || 'Cobalt error');
 
         const link = data.url;
         const filename = data.filename || '';
 
-        if (link) {
+        if (data.status === 'local-processing') {
+          showDualDownload(data.videoUrl, data.audioUrl, data.filename);
+        } else if (link) {
           const qlabel = quality === 'audio' ? 'MP3' : quality === 'max' ? '(Best)' : `${quality}p`;
           showStatus('success', 'Link ready.', filename, link, qlabel);
         } else if (data.status === 'picker' && data.picker?.length) {
