@@ -1,3 +1,19 @@
+import { Innertube, UniversalCache } from 'youtubei.js';
+
+function extractVideoId(url) {
+  const match = url.match(
+    /(?:v=|\/shorts\/|youtu\.be\/|\/embed\/)([a-zA-Z0-9_-]{11})/
+  );
+  return match ? match[1] : null;
+}
+
+function sanitizeTitle(title) {
+  return (title || 'video')
+    .replace(/[/\\?%*:|"<>]/g, '-')
+    .trim()
+    .substring(0, 80);
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -7,83 +23,71 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const { url, quality } = req.body;
-  if (!url) return res.status(400).json({ error: 'URL is required' });
+  if (!url) return res.status(400).json({ error: 'URL required' });
+
+  const videoId = extractVideoId(url);
+  if (!videoId) return res.status(400).json({ error: 'Invalid YouTube URL' });
 
   try {
-    const apiBase = await getWorkingInstance();
-    const isAudio = quality === 'audio';
+    const yt = await Innertube.create({ cache: new UniversalCache(false) });
+    const info = await yt.getBasicInfo(videoId);
+    const player = yt.session.player;
 
-    const payload = isAudio
-      ? { url, downloadMode: 'audio', audioFormat: 'mp3', filenameStyle: 'basic' }
-      : { url, videoQuality: quality || '1080', downloadMode: 'auto', filenameStyle: 'basic' };
+    const title = sanitizeTitle(info.basic_info?.title);
+    const combined = info.streaming_data?.formats || [];
+    const adaptive = info.streaming_data?.adaptive_formats || [];
 
-    const cobaltRes = await fetch(`${apiBase}/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        'User-Agent': 'yt-clipper/1.0 (+personal-tool)',
-      },
-      body: JSON.stringify(payload),
+    // ── Audio only ──────────────────────────────────────────────────
+    if (quality === 'audio') {
+      const fmt = adaptive
+        .filter(f => f.mime_type?.startsWith('audio/'))
+        .sort((a, b) => (b.bitrate || 0) - (a.bitrate || 0))[0];
+
+      if (!fmt) throw new Error('No audio stream found');
+      return res.json({ status: 'redirect', url: fmt.decipher(player), filename: `${title}.mp3` });
+    }
+
+    // ── Target height ───────────────────────────────────────────────
+    const targetH = quality === 'max' ? 9999 : (parseInt(quality) || 720);
+
+    // ── Try combined (video+audio) streams first — exist up to 720p ─
+    const bestCombined = combined
+      .filter(f => f.mime_type?.includes('video/mp4'))
+      .sort((a, b) => Math.abs((a.height || 0) - targetH) - Math.abs((b.height || 0) - targetH))[0];
+
+    if (bestCombined) {
+      const streamUrl = bestCombined.decipher(player);
+      if (streamUrl) {
+        return res.json({
+          status: 'redirect',
+          url: streamUrl,
+          filename: `${title}-${bestCombined.height}p.mp4`,
+        });
+      }
+    }
+
+    // ── Fall back to adaptive (separate video + audio) for 1080p+ ───
+    const videoFmts = adaptive
+      .filter(f => f.mime_type?.includes('video/mp4') && f.height)
+      .sort((a, b) => Math.abs((a.height || 0) - targetH) - Math.abs((b.height || 0) - targetH));
+
+    const audioFmts = adaptive
+      .filter(f => f.mime_type?.startsWith('audio/'))
+      .sort((a, b) => (b.bitrate || 0) - (a.bitrate || 0));
+
+    if (!videoFmts.length) throw new Error('No video stream found for this quality');
+
+    const bestVideo = videoFmts[0];
+    const bestAudio = audioFmts[0];
+
+    return res.json({
+      status: 'local-processing',
+      videoUrl: bestVideo.decipher(player),
+      audioUrl: bestAudio ? bestAudio.decipher(player) : null,
+      filename: `${title}-${bestVideo.height}p.mp4`,
     });
 
-    const data = await cobaltRes.json();
-
-    // Cobalt error response: { status: "error", error: { code: "..." } }
-    if (data.status === 'error') {
-      const code = data.error?.code || data.error || 'Unknown cobalt error';
-      return res.status(200).json({ error: String(code) });
-    }
-
-    // local-processing: YouTube 1080p+ serves video and audio as separate streams.
-    // Pass both tunnel URLs back so the frontend can show two download buttons.
-    if (data.status === 'local-processing') {
-      const tunnels = data.tunnel || [];
-      return res.status(200).json({
-        status: 'local-processing',
-        videoUrl: tunnels[0] || null,
-        audioUrl: tunnels[1] || null,
-        filename: data.output?.filename || 'video.mp4',
-      });
-    }
-
-    return res.status(200).json(data);
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Internal server error' });
+    return res.status(500).json({ error: err.message || 'Failed to get video info' });
   }
-}
-
-// Dynamically fetch a working cobalt instance from the public registry
-async function getWorkingInstance() {
-  try {
-    const res = await fetch('https://instances.cobalt.best/api', {
-      headers: {
-        'User-Agent': 'yt-clipper/1.0 (+personal-tool)',
-      },
-    });
-
-    if (!res.ok) throw new Error('Registry unavailable');
-
-    const instances = await res.json();
-
-    const best = instances
-      .filter((i) => {
-        const online = typeof i.online === 'boolean' ? i.online : i.online?.api;
-        const noAuth = i.info?.auth === false;
-        const youtubeWorks = i.services?.youtube === true;
-        const highScore = (i.score || 0) >= 50;
-        return online && noAuth && youtubeWorks && highScore;
-      })
-      .sort((a, b) => (b.score || 0) - (a.score || 0))[0];
-
-    if (best) {
-      const proto = best.protocol || 'https';
-      return `${proto}://${best.api}`;
-    }
-  } catch (e) {
-    console.error('Instance fetch failed:', e.message);
-  }
-
-  // Final fallback
-  return 'https://api.cobalt.tools';
 }
