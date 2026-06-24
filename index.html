@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YT Clipper</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0c0c0c;
+      --surface: #161616;
+      --border: #2a2a2a;
+      --border-hover: #444;
+      --text: #ffffff;
+      --text-muted: #888;
+      --text-dim: #444;
+      --success-bg: #0a1a0f;
+      --success-border: #1a4a2a;
+      --error-bg: #1a0a0a;
+      --error-border: #4a1a1a;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .container { width: 100%; max-width: 440px; }
+
+    /* Header */
+    .header { margin-bottom: 40px; }
+    .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .logo-icon {
+      width: 32px; height: 32px;
+      background: #ff0000;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .logo-text { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
+    .subtitle { color: var(--text-dim); font-size: 13px; }
+
+    /* Fields */
+    .field { margin-bottom: 16px; }
+    .label {
+      display: block;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    /* Input */
+    .input-wrap { position: relative; }
+    input[type="text"] {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 40px 12px 16px;
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+      font-family: inherit;
+    }
+    input[type="text"]::placeholder { color: #3a3a3a; }
+    input[type="text"]:focus { border-color: var(--border-hover); }
+    .clear-btn {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: #444; cursor: pointer;
+      font-size: 20px; line-height: 1; padding: 4px; transition: color 0.15s;
+    }
+    .clear-btn:hover { color: #888; }
+
+    /* Quality grid */
+    .quality-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .quality-btn {
+      padding: 9px 4px;
+      border-radius: 10px;
+      font-size: 11px; font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .quality-btn:hover { border-color: var(--border-hover); color: var(--text); }
+    .quality-btn.active { background: #fff; color: #000; border-color: transparent; }
+
+    /* CTA */
+    .cta {
+      width: 100%; margin-top: 24px;
+      padding: 14px; border-radius: 12px;
+      font-size: 14px; font-weight: 600;
+      border: none; cursor: pointer;
+      background: #fff; color: #000;
+      transition: background 0.15s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      font-family: inherit;
+    }
+    .cta:hover { background: #e8e8e8; }
+    .cta:disabled { background: #1a1a1a; color: #3a3a3a; cursor: not-allowed; }
+
+    /* Status */
+    .status-card {
+      margin-top: 16px; border-radius: 12px;
+      padding: 16px; display: none;
+    }
+    .status-card.visible { display: block; }
+    .status-card.success { background: var(--success-bg); border: 1px solid var(--success-border); }
+    .status-card.error { background: var(--error-bg); border: 1px solid var(--error-border); }
+    .status-msg { font-size: 13px; margin-bottom: 4px; }
+    .status-card.success .status-msg { color: #4ade80; }
+    .status-card.error .status-msg { color: #f87171; }
+    .status-filename { font-size: 11px; color: var(--text-dim); word-break: break-all; }
+    .download-btn {
+      display: block; width: 100%; text-align: center;
+      margin-top: 12px; padding: 11px;
+      background: #16a34a; color: #fff;
+      text-decoration: none; border-radius: 9px;
+      font-size: 13px; font-weight: 600;
+      transition: background 0.15s;
+    }
+    .download-btn:hover { background: #15803d; }
+    .retry-btn {
+      margin-top: 10px; background: none; border: none;
+      font-size: 11px; color: #555; cursor: pointer;
+      text-decoration: underline; font-family: inherit; transition: color 0.15s;
+    }
+    .retry-btn:hover { color: #888; }
+
+    /* Footer */
+    .footer { margin-top: 32px; text-align: center; font-size: 11px; color: #2a2a2a; }
+    .footer a { color: #444; text-decoration: none; transition: color 0.15s; }
+    .footer a:hover { color: #777; }
+
+    /* Spinner */
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid #444; border-top-color: #000;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="header">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="white">
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+        </div>
+        <span class="logo-text">YT Clipper</span>
+      </div>
+      <p class="subtitle">Personal download tool for your clipping workflow.</p>
+    </div>
+
+    <div class="field">
+      <label class="label">YouTube URL</label>
+      <div class="input-wrap">
+        <input id="urlInput" type="text" placeholder="https://youtube.com/watch?v=..." />
+        <button class="clear-btn" id="clearBtn" style="display:none" onclick="clearAll()">×</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="label">Quality</label>
+      <div class="quality-grid" id="qualityGrid">
+        <button class="quality-btn active" data-value="max">Best</button>
+        <button class="quality-btn" data-value="2160">4K</button>
+        <button class="quality-btn" data-value="1440">1440p</button>
+        <button class="quality-btn" data-value="1080">1080p</button>
+        <button class="quality-btn" data-value="720">720p</button>
+        <button class="quality-btn" data-value="480">480p</button>
+        <button class="quality-btn" data-value="360">360p</button>
+        <button class="quality-btn" data-value="audio">MP3</button>
+      </div>
+    </div>
+
+    <button class="cta" id="ctaBtn" onclick="handleFetch()" disabled>
+      ↓ Get Download Link
+    </button>
+
+    <div class="status-card" id="statusCard">
+      <p class="status-msg" id="statusMsg"></p>
+      <p class="status-filename" id="statusFilename"></p>
+      <a class="download-btn" id="downloadBtn" href="#" target="_blank" rel="noopener noreferrer" style="display:none">↓ Download</a>
+      <button class="retry-btn" onclick="clearAll()">Try another link</button>
+    </div>
+
+    <p class="footer">Powered by <a href="https://cobalt.tools" target="_blank">cobalt.tools</a> &middot; Personal use only</p>
+  </div>
+
+  <script>
+    let quality = 'max';
+
+    const urlInput  = document.getElementById('urlInput');
+    const clearBtn  = document.getElementById('clearBtn');
+    const ctaBtn    = document.getElementById('ctaBtn');
+    const statusCard= document.getElementById('statusCard');
+    const statusMsg = document.getElementById('statusMsg');
+    const statusFile= document.getElementById('statusFilename');
+    const dlBtn     = document.getElementById('downloadBtn');
+
+    urlInput.addEventListener('input', () => {
+      const has = urlInput.value.trim().length > 0;
+      clearBtn.style.display = has ? 'block' : 'none';
+      ctaBtn.disabled = !has;
+    });
+
+    urlInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') handleFetch();
+    });
+
+    document.getElementById('qualityGrid').addEventListener('click', e => {
+      const btn = e.target.closest('.quality-btn');
+      if (!btn) return;
+      document.querySelectorAll('.quality-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      quality = btn.dataset.value;
+    });
+
+    function clearAll() {
+      urlInput.value = '';
+      clearBtn.style.display = 'none';
+      ctaBtn.disabled = true;
+      statusCard.className = 'status-card';
+      urlInput.focus();
+    }
+
+    function showStatus(type, msg, filename, dlUrl, dlLabel) {
+      statusCard.className = `status-card visible ${type}`;
+      statusMsg.textContent = (type === 'success' ? '✓ ' : '✗ ') + msg;
+      statusFile.textContent = filename || '';
+      statusFile.style.display = filename ? 'block' : 'none';
+      if (dlUrl) {
+        dlBtn.href = dlUrl;
+        dlBtn.textContent = `↓ Download ${dlLabel}`;
+        dlBtn.style.display = 'block';
+      } else {
+        dlBtn.style.display = 'none';
+      }
+    }
+
+    async function handleFetch() {
+      const url = urlInput.value.trim();
+      if (!url) return;
+
+      ctaBtn.disabled = true;
+      ctaBtn.innerHTML = '<span class="spinner"></span> Fetching...';
+      statusCard.className = 'status-card';
+
+      try {
+        const res = await fetch('/api/download', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url, quality }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || data.error) throw new Error(data.error || `HTTP ${res.status}`);
+        if (data.status === 'error') throw new Error(data.error?.code || 'Cobalt returned an error.');
+
+        const link = data.url;
+        const filename = data.filename || '';
+
+        if (link) {
+          const qlabel = quality === 'audio' ? 'MP3' : quality === 'max' ? '(Best)' : `${quality}p`;
+          showStatus('success', 'Link ready.', filename, link, qlabel);
+        } else if (data.status === 'picker' && data.picker?.length) {
+          const first = data.picker[0];
+          showStatus('success', `${data.picker.length} streams found.`, first.name || '', first.url, '');
+        } else {
+          throw new Error('No download URL returned. Try a different quality.');
+        }
+
+      } catch (err) {
+        showStatus('error', err.message || 'Something went wrong.', '', null, '');
+      } finally {
+        ctaBtn.disabled = false;
+        ctaBtn.innerHTML = '↓ Get Download Link';
+      }
+    }
+  </script>
+</body>
+</html>
